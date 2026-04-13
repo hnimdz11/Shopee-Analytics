@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Shopee Analytics</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js and HTML2Canvas locally -->
+  <script src="../libs/chart.min.js"></script>
+  <script src="../libs/html2canvas.min.js"></script>
+</head>
+<body>
+  
+  <div id="app">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-box">S</div>
+      <h2>Shopee Analytics</h2>
+    </div>
+
+    <!-- Tabs/Settings bar -->
+    <div class="top-settings">
+      <button id="btn-budget" class="btn-sm btn-outline">Ngân sách</button>
+      <button id="btn-price-watch" class="btn-sm btn-outline">Giảm giá</button>
+      <button id="btn-open-sidebar" class="btn-sm btn-outline">Sidebar</button>
+    </div>
+
+    <!-- Budget Panel (Overlay) -->
+    <div id="budget-panel" class="overlay-panel offscreen">
+      <h3>Thiết lập Ngân sách tháng</h3>
+      <input type="number" id="input-budget" placeholder="Nhập số tiền (VD: 5000000)">
+      <button id="btn-save-budget" class="btn btn-primary">Lưu</button>
+      <button id="btn-close-budget" class="btn btn-secondary">Đóng</button>
+    </div>
+
+    <!-- Price Watch Panel (Overlay) -->
+    <div id="price-watch-panel" class="overlay-panel offscreen">
+      <h3>Theo dõi giảm giá</h3>
+      <input type="text" id="input-pw-url" placeholder="Dán link sản phẩm Shopee...">
+      <button id="btn-add-pw" class="btn btn-primary">Thêm</button>
+      <button id="btn-force-check" class="btn btn-secondary">Check ngay</button>
+      <button id="btn-close-pw" class="btn btn-danger">Đóng</button>
+      <div id="pw-status" class="pw-status text-green"></div>
+      <ul id="pw-list" class="mini-list"></ul>
+    </div>
+
+    <!-- Error Banner -->
+    <div id="err-banner" class="error-banner offscreen">
+      <div class="err-icon">⚠️</div>
+      <div class="err-text" id="err-text">Vui lòng mở trang Shopee để quét.</div>
+      <button id="btn-open-shopee" class="btn-sm btn-outline">Mở Shopee</button>
+    </div>
+
+    <!-- Controller Box -->
+    <div class="box scanner-box">
+      <button id="btn-scan" class="btn btn-primary">Bắt đầu quét</button>
+      <div class="progress-wrap" id="progress-wrap" style="display: none;">
+        <span class="progress-text" id="progress-text">Đang chuẩn bị...</span>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- Main Stats (Hidden initially) -->
+    <div id="stats-container"
+
+      class="stats-container offscreen">
+      
+      <!-- Hero Stat -->
+      <div class="box hero-box">
+        <div class="hero-label">Tổng Chi Tiêu</div>
+        <div class="hero-val" id="val-total-spend">0 ₫</div>
+        <!-- Thanh tiến trình ngân sách -->
+        <div id="budget-progress-container" class="offscreen">
+          <div class="budget-label" id="budget-label">Ngân sách tháng này: 0%</div>
+          <div class="progress-bar"><div class="progress-fill budget-fill" id="budget-fill"></div></div>
+        </div>
+        <div class="sub-stat">
+          <span>Tiết kiệm/Hoàn tiền: <strong id="val-saved" class="text-green">0 ₫</strong></span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="box micro-box">
+          <div class="micro-val" id="val-orders">0</div>
+          <div class="micro-label">Đơn Hàng</div>
+        </div>
+        <div class="box micro-box">
+          <div class="micro-val" id="val-avg-order">0 ₫</div>
+          <div class="micro-label">Trung bình/đơn</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="box micro-box">
+          <div class="micro-val" id="val-items">0</div>
+          <div class="micro-label">Sản Phẩm</div>
+        </div>
+        <div class="box micro-box">
+          <div class="micro-val" id="val-shops">0</div>
+          <div class="micro-label">Shop</div>
+        </div>
+      </div>
+
+      <!-- Verdict Banner -->
+      <div class="box verdict-box">
+        <div class="verdict-label">Bạn đã chi tương đương</div>
+        <div class="verdict-text" id="val-equivalent">1 cốc trà sữa</div>
+      </div>
+
+      <!-- Additional Insights -->
+      <details class="accordion">
+        <summary>Chi tiết chuyên sâu</summary>
+        <div class="acc-body">
+          <div class="list-row"><span>Đơn lâu nhất:</span><strong id="val-first-date">--</strong></div>
+          <div class="list-row"><span>Giờ hay mua:</span><strong id="val-fav-hour">--</strong></div>
+          <div class="list-row"><span>Trung bình/tháng:</span><strong id="val-avg-month">--</strong></div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Mức chi theo tháng</summary>
+        <div class="acc-body">
+          <canvas id="chart-months" height="150"></canvas>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>Sản phẩm đắt đỏ nhất</summary>
+        <div class="acc-body">
+          <ul id="list-expensive" class="mini-list"></ul>
+        </div>
+      </details>
+
+      <div class="action-grid">
+        <button id="btn-export-csv" class="btn btn-secondary">Xuất CSV</button>
+        <button id="btn-export-img" class="btn btn-secondary">Chia sẻ ẢNH</button>
+        <button id="btn-clear" class="btn btn-danger">Xóa Cache</button>
+      </div>
+
+    </div>
+
+    <!-- Hidden Poster for Export -->
+    <div id="export-poster" class="poster-container offscreen">
+      <div class="poster-head">
+        <h2>Shopee Analytics</h2>
+        <p id="poster-timeframe">Từ trước tới nay</p>
+      </div>
+      <div class="poster-hero">
+        <p>Tổng "Cống Hiến"</p>
+        <h1 id="poster-total">0 ₫</h1>
+      </div>
+      <div class="poster-grid">
+        <div><strong id="poster-orders">0</strong><br>Đơn Hàng</div>
+        <div><strong id="poster-items">0</strong><br>Sản Phẩm</div>
+        <div><strong id="poster-shops">0</strong><br>Shop Khác Nhau</div>
+        <div><strong id="poster-avg">0 ₫</strong><br>TB / Đơn</div>
+      </div>
+      <div class="poster-verdict" id="poster-equivalent">Tương đương 1 cốc trà sữa</div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

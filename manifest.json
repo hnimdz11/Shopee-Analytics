@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Shopee Analytics",
+  "description": "Thống kê chi tiêu Shopee",
+  "version": "2.0.0",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "sidePanel",
+    "notifications",
+    "alarms"
+  ],
+  "host_permissions": [
+    "*://shopee.vn/*",
+    "*://*.shopee.vn/*"
+  ],
+  "side_panel": {
+    "default_path": "popup/index.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://shopee.vn/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "shopee-injector.js"
+      ],
+      "matches": ["*://shopee.vn/*", "*://*.shopee.vn/*"]
+    }
+  ]
+}
