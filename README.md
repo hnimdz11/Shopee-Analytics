@@ -1,6 +1,6 @@
 # Shopee Analytics 🛒
 
-**Shopee Analytics** là một tiện ích mở rộng (extension) trên trình duyệt giúp bạn thống kê và phân tích chi tiết lịch sử mua sắm, chi tiêu trên Shopee một cách trực quan, tự động và đặc biệt là **hỗ trợ bypass lỗi 403** khi quét dữ liệu. Không chỉ cung cấp số liệu khô khan, extension còn mang đến nhiều tính năng thú vị để giúp bạn quản lý tài chính thông minh hơn.
+**Shopee Analytics** là một tiện ích mở rộng (extension) trên trình duyệt giúp bạn thống kê và phân tích chi tiết lịch sử mua sắm, chi tiêu trên Shopee một cách trực quan, tự động. Không chỉ cung cấp số liệu khô khan, extension còn mang đến nhiều tính năng thú vị để giúp bạn quản lý tài chính thông minh hơn.
 
 ## 🌟 Các tính năng nổi bật
 
